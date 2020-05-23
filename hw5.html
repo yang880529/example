@@ -331,8 +331,8 @@ function agentMesh () {
 		var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
 		lastTimeMsec	= nowMsec
 		// call each update function
-		agent.update(0.01)
-		agent2.update(0.013)
+		agent.update(0.05)
+		agent2.update(0.053)
 		onRenderFcts.forEach(function(onRenderFct){
 			onRenderFct(deltaMsec/1000, nowMsec/1000)
 		})
