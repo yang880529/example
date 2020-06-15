@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<!-- three.js library -->
+<script src='https://yang880529.github.io/example/three.js/build/three.min.js'></script>
+<script src="https://yang880529.github.io/example/three.js/examples/js/libs/stats.min.js"></script>
+<!-- ar.js -->
+<script src="https://yang880529.github.io/example/build/ar.js"></script>
+<script>THREEx.ArToolkitContext.baseURL = 'https://yang880529.github.io/example'</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/107/three.min.js"></script>
+<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+</div>
+
+<script>
+
+// global variables
+var renderer, scene, camera, controls;
+var stats;
+var arToolKitSource, arToolKitContext;
+var markerHiro;
+
+init();
+animate();
+
+function init() {
+
+	// init renderer
+	renderer	= new THREE.WebGLRenderer({
+		// antialias	: true,
+		alpha: true
+	});
+	renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+	// renderer.setPixelRatio( 1/2 );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.domElement.style.position = 'absolute'
+	renderer.domElement.style.top = '0px'
+	renderer.domElement.style.left = '0px'
+	document.body.appendChild( renderer.domElement );
+
+	stats = new Stats();
+	document.body.appendChild( stats.dom );
+
+	// init scene and camera
+	scene	= new THREE.Scene();
+	
+	// Create a BASIC camera
+	camera = new THREE.Camera();
+	scene.add(camera);
+
+	////////////////////////////////////////////////////////////////////////////////
+	//          handle arToolkitSource
+	////////////////////////////////////////////////////////////////////////////////
+
+	arToolkitSource = new THREEx.ArToolkitSource({
+		// to read from the webcam 
+		sourceType : 'webcam',
+	})
+
+	arToolkitSource.init(function onReady(){
+		onResize()
+	})
+	
+	// handle resize
+	window.addEventListener('resize', function(){
+		onResize()
+	})
+	function onResize(){
+		arToolkitSource.onResize()	
+		arToolkitSource.copySizeTo(renderer.domElement)	
+		if( arToolkitContext.arController !== null ){
+			arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+		}	
+	}
+	////////////////////////////////////////////////////////////////////////////////
+	//          initialize arToolkitContext
+	////////////////////////////////////////////////////////////////////////////////
+	
+	arToolkitContext = new THREEx.ArToolkitContext({
+		cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
+		detectionMode: 'mono',
+		maxDetectionRate: 30,
+		canvasWidth: 80*3,
+		canvasHeight: 60*3,
+	})
+	// initialize it
+	arToolkitContext.init(function onCompleted(){
+		// copy projection matrix to camera
+		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+	})
+
+	markerHiro = addMarkerHiro();
+	scene.add (markerHiro); 
+	
+	var light = new THREE.PointLight( 0xffffff, 1, 100 );
+light.position.set( 5, 5, 5 );
+scene.add( light );
+	
+}
+	
+function addMarkerHiro(){
+	let markerRoot = new THREE.Group()
+
+	var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+		type : 'pattern',
+		patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.hiro'
+	})
+
+	// need to add a WRAP ...
+	let myWrap = new THREE.Group()
+	markerRoot.add (myWrap)
+
+	// add a torus knot & a transparent box	
+ ////////////////////////////////////////////////////////////////
+  let loader = new THREE.TextureLoader();
+  loader.setCrossOrigin ('')
+  let boxMap = loader.load( "https://i.imgur.com/L3LEwKe.png" );
+  
+  material = new THREE.MeshBasicMaterial({
+    side: THREE.DoubleSide,
+    transparent: true, // key to cutout texture
+    map: boxMap
+  });
+
+  box = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), material);
+
+
+
+  texture2 = loader.load('https://i.imgur.com/k969BJS.jpg');
+	var geometry = new THREE.BoxBufferGeometry( 100,100, 0);
+	var material = new THREE.MeshBasicMaterial({map: texture2});
+	background = new THREE.Mesh( geometry, material );
+  background.position.set(0,50,0);
+
+  
+  loader = new THREE.TextureLoader();
+  loader.setCrossOrigin ('')
+  let peoplemap = loader.load( "https://i.imgur.com/QNgVMLg.png" );
+  
+  material = new THREE.MeshBasicMaterial({
+    transparent: true, // key to cutout texture
+    map: peoplemap
+  });
+
+  people = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), material);
+  people.position.set(40,35,30);
+	//markerRoot.add (mesh);
+	myWrap.add (,box,background,people);
+	
+	mesh = new THREE.Mesh (new THREE.BoxGeometry(1,1,1), 
+				new THREE.MeshNormalMaterial({transparent:true, opacity:0.3}));
+	mesh.position.y	= 0.5
+	//markerRoot.add (mesh);
+	myWrap.add (mesh);
+	
+	myWrap.scale.set (0.5,0.5,0.5);
+	
+	//markerRoot.scale.set (0.5, 0.5, 0.5) // this WONT work ...
+	//markerRoot.position.set (0.5, 0, -0.3) // this WONT work ...
+	
+	return markerRoot;
+}	
+
+
+function animate() {
+	requestAnimationFrame (animate);
+	stats.update();
+	
+	if( arToolkitSource.ready === false )	return
+	arToolkitContext.update( arToolkitSource.domElement )
+	box.position.set(-30, 20, 30);
+	rotateBillboardNew(box);
+	//markerHiro.children[0].rotation.y += 0.1;
+	
+	renderer.render (scene, camera);	
+}
+
+
+// much simpler...
+// using lookAt of Object3D
+function rotateBillboardNew (mesh) {
+  let groundShadow = camera.position.clone();
+  groundShadow.y = 0;
+  mesh.lookAt (groundShadow);
+}
+
+function rotateBillboard(mesh) {
+  var b = mesh.position.clone(); // billboard location
+  var rotaxis = new THREE.Vector3();
+  var v, yhat, n;
+
+  v = camera.position.clone(); // clone the camera position
+  yhat = new THREE.Vector3(0, 1, 0); // up
+  n = new THREE.Vector3(0, 0, 1); // billboard normal
+
+  v.subVectors(v, b); // v-b
+  v.sub(yhat.clone().multiplyScalar(v.dot(yhat)));
+  v.normalize(); // pxz
+
+  rotangle = Math.acos(v.dot(n));
+  rotaxis.crossVectors(n, v);
+  if (rotaxis.dot(yhat) < 0) rotangle *= -1;
+
+  mesh.rotation.y = rotangle;
+}
+</script></body>
