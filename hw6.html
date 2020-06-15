@@ -6,7 +6,12 @@
 <!-- ar.js -->
 <script src="https://yang880529.github.io/example/build/ar.js"></script>
 <script>THREEx.ArToolkitContext.baseURL = 'https://yang880529.github.io/example'</script>
-
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+<div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
+<a href="https://github.com/jeromeetienne/AR.js/" target="_blank">AR.js</a>
+	 - three.js mobile performance<br>
+Minimal Version
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/107/three.min.js"></script>
 <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
@@ -24,7 +29,7 @@ animate();
 
 function init() {
 
-	// init renderer
+// init renderer
 	renderer	= new THREE.WebGLRenderer({
 		// antialias	: true,
 		alpha: true
@@ -35,10 +40,10 @@ function init() {
 	renderer.domElement.style.position = 'absolute'
 	renderer.domElement.style.top = '0px'
 	renderer.domElement.style.left = '0px'
-
+	document.body.appendChild( renderer.domElement );
 
 	stats = new Stats();
-
+	document.body.appendChild( stats.dom );
 
 	// init scene and camera
 	scene	= new THREE.Scene();
@@ -146,11 +151,7 @@ function addMarkerHiro(){
 	//markerRoot.add (mesh);
 	myWrap.add (box,background,people);
 	
-	mesh = new THREE.Mesh (new THREE.BoxGeometry(1,1,1), 
-				new THREE.MeshNormalMaterial({transparent:true, opacity:0.3}));
-	mesh.position.y	= 0.5
-	//markerRoot.add (mesh);
-	myWrap.add (mesh);
+
 	
 	myWrap.scale.set (0.5,0.5,0.5);
 	
