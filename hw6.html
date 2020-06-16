@@ -126,7 +126,7 @@ function addMarkerHiro(){
 
 
   texture2 = loader.load('https://i.imgur.com/k969BJS.jpg');
-	var geometry = new THREE.BoxBufferGeometry( 100/120,100/120,1/120);
+	var geometry = new THREE.BoxBufferGeometry( 100/120,0,1/120);
 	var material = new THREE.MeshBasicMaterial({map: texture2});
 	background = new THREE.Mesh( geometry, material );
   background.position.set(0,50/120,0);
@@ -142,7 +142,7 @@ function addMarkerHiro(){
   });
 
   people = new THREE.Mesh(new THREE.PlaneGeometry(60/120, 60/120), material);
-  people.position.set(40/120,35/120,30/120);
+  people.position.set(40/120,0,30/120);
 	//markerRoot.add (mesh);
 	markerRoot.add (box,background,people);
 	
@@ -156,7 +156,7 @@ function animate() {
 	
 	if( arToolkitSource.ready === false )	return
 	arToolkitContext.update( arToolkitSource.domElement )
-	box.position.set(-30/120, 20/120, 30/120);
+	box.position.set(-30/120, 0, 30/120);
 	rotateBillboardNew(box);
 	//markerHiro.children[0].rotation.y += 0.1;
 	
