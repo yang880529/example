@@ -124,15 +124,15 @@ function addMarkerHiro(){
     map: boxMap
   });
 
-  box = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), material);
+  box = new THREE.Mesh(new THREE.PlaneGeometry(40/240, 40/240), material);
 
 
 
   texture2 = loader.load('https://i.imgur.com/k969BJS.jpg');
-	var geometry = new THREE.BoxBufferGeometry( 100,100, 0);
+	var geometry = new THREE.BoxBufferGeometry( 100/240,100/240, 0);
 	var material = new THREE.MeshBasicMaterial({map: texture2});
 	background = new THREE.Mesh( geometry, material );
-  background.position.set(0,50,0);
+  background.position.set(0,50/240,0);
 
   
   loader = new THREE.TextureLoader();
@@ -144,8 +144,8 @@ function addMarkerHiro(){
     map: peoplemap
   });
 
-  people = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), material);
-  people.position.set(40,35,30);
+  people = new THREE.Mesh(new THREE.PlaneGeometry(60/240, 60/240), material);
+  people.position.set(40/240,35/240,30/240);
 	//markerRoot.add (mesh);
 	myWrap.add (box,background,people);
 	
@@ -166,7 +166,7 @@ function animate() {
 	
 	if( arToolkitSource.ready === false )	return
 	arToolkitContext.update( arToolkitSource.domElement )
-	box.position.set(-30, 20, 30);
+	box.position.set(-30/240, 20/240, 30/240);
 	rotateBillboardNew(box);
 	//markerHiro.children[0].rotation.y += 0.1;
 	
