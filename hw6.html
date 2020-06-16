@@ -91,6 +91,30 @@ function init() {
 		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
 	})
 
+
+	
+		markerHiro = addMarkerHiro();
+	scene.add (markerHiro); 
+	
+	
+	var light = new THREE.PointLight( 0xffffff, 1, 100 );
+light.position.set( 5, 5, 5 );
+scene.add( light );
+	
+}
+
+function addMarkerHiro(){
+	let markerRoot = new THREE.Group()
+
+	var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+		type : 'pattern',
+		patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.hiro'
+	})
+
+	// need to add a WRAP ...
+
+
+	// add a torus knot & a transparent box	
 	 ////////////////////////////////////////////////////////////////
   let loader = new THREE.TextureLoader();
   loader.setCrossOrigin ('')
@@ -107,7 +131,7 @@ function init() {
 
 
   texture2 = loader.load('https://i.imgur.com/k969BJS.jpg');
-	var geometry = new THREE.BoxBufferGeometry( 100/120,100/120, 0);
+	var geometry = new THREE.BoxBufferGeometry( 100/120,100/120,1/120);
 	var material = new THREE.MeshBasicMaterial({map: texture2});
 	background = new THREE.Mesh( geometry, material );
   background.position.set(0,50/120,0);
@@ -125,14 +149,14 @@ function init() {
   people = new THREE.Mesh(new THREE.PlaneGeometry(60/120, 60/120), material);
   people.position.set(40/120,35/120,30/120);
 	//markerRoot.add (mesh);
-	scene.add (box,background,people);
+	markerRoot.add (box,background,people);
+	//markerRoot.add (mesh);
 	
-	var light = new THREE.PointLight( 0xffffff, 1, 100 );
-light.position.set( 5, 5, 5 );
-scene.add( light );
+	//markerRoot.scale.set (0.5, 0.5, 0.5) // this WONT work ...
+	//markerRoot.position.set (0.5, 0, -0.3) // this WONT work ...
 	
-}
-
+	return markerRoot;
+}	
 
 
 function animate() {
