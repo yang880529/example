@@ -109,8 +109,6 @@ function addMarkerHiro(){
 	})
 
 	// need to add a WRAP ...
-	let myWrap = new THREE.Group()
-	markerRoot.add (myWrap)
 
 	// add a torus knot & a transparent box	
  ////////////////////////////////////////////////////////////////
@@ -124,15 +122,15 @@ function addMarkerHiro(){
     map: boxMap
   });
 
-  box = new THREE.Mesh(new THREE.PlaneGeometry(40/240, 40/240), material);
+  box = new THREE.Mesh(new THREE.PlaneGeometry(40/120, 40/120), material);
 
 
 
   texture2 = loader.load('https://i.imgur.com/k969BJS.jpg');
-	var geometry = new THREE.BoxBufferGeometry( 100/240,100/240, 0);
+	var geometry = new THREE.BoxBufferGeometry( 100/120,100/120, 0);
 	var material = new THREE.MeshBasicMaterial({map: texture2});
 	background = new THREE.Mesh( geometry, material );
-  background.position.set(0,50/240,0);
+  background.position.set(0,50/120,0);
 
   
   loader = new THREE.TextureLoader();
@@ -144,14 +142,14 @@ function addMarkerHiro(){
     map: peoplemap
   });
 
-  people = new THREE.Mesh(new THREE.PlaneGeometry(60/240, 60/240), material);
-  people.position.set(40/240,35/240,30/240);
+  people = new THREE.Mesh(new THREE.PlaneGeometry(60/120, 60/120), material);
+  people.position.set(40/120,35/120,30/120);
 	//markerRoot.add (mesh);
-	myWrap.add (box,background,people);
+	markerRoot.add (box,background,people);
 	
 
 	
-	myWrap.scale.set (0.5,0.5,0.5);
+
 	
 	//markerRoot.scale.set (0.5, 0.5, 0.5) // this WONT work ...
 	//markerRoot.position.set (0.5, 0, -0.3) // this WONT work ...
@@ -166,7 +164,7 @@ function animate() {
 	
 	if( arToolkitSource.ready === false )	return
 	arToolkitContext.update( arToolkitSource.domElement )
-	box.position.set(-30/240, 20/240, 30/240);
+	box.position.set(-30/120, 20/120, 30/120);
 	rotateBillboardNew(box);
 	//markerHiro.children[0].rotation.y += 0.1;
 	
