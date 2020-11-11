@@ -35,7 +35,16 @@ function init() {
 
 	  document.body.appendChild(renderer.domElement);
 	  controls = new THREE.OrbitControls(camera, renderer.domElement);
+	  
+	stats = new Stats();
+	document.body.appendChild( stats.dom );
 
+	// init scene and camera
+	scene	= new THREE.Scene();
+	
+	// Create a BASIC camera
+	camera = new THREE.Camera();
+	scene.add(camera);
 	////////////////////////////////////////////////////////////////////////////////
 	//          handle arToolkitSource
 	////////////////////////////////////////////////////////////////////////////////
