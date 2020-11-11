@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<!-- three.js library -->
+<script src='https://yang880529.github.io/example/three.js/build/three.min.js'></script>
+<script src="https://yang880529.github.io/example/libs/stats.min.js"></script>
+<!-- ar.js -->
+<script src="https://yang880529.github.io/example/build/ar.js"></script>
+<script>THREEx.ArToolkitContext.baseURL = 'https://yang880529.github.io/example'</script>
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+<div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
+<a href="https://github.com/jeromeetienne/AR.js/" target="_blank">AR.js</a>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/107/three.min.js"></script>
+<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+
+
+<script>
+
+// global variables
+var renderer, scene, camera, controls;
+var stats;
+var arToolKitSource, arToolKitContext;
+var markerHiro;
+
+init();
+animate();
+
+function init() {
+
+// init renderer
+	renderer	= new THREE.WebGLRenderer({
+		// antialias	: true,
+		alpha: true
+	});
+	renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+	// renderer.setPixelRatio( 1/2 );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.domElement.style.position = 'absolute'
+	renderer.domElement.style.top = '0px'
+	renderer.domElement.style.left = '0px'
+	document.body.appendChild( renderer.domElement );
+
+	stats = new Stats();
+	document.body.appendChild( stats.dom );
+
+	// init scene and camera
+	scene	= new THREE.Scene();
+	
+	// Create a BASIC camera
+	camera = new THREE.Camera();
+	scene.add(camera);
+
+	////////////////////////////////////////////////////////////////////////////////
+	//          handle arToolkitSource
+	////////////////////////////////////////////////////////////////////////////////
+
+	arToolkitSource = new THREEx.ArToolkitSource({
+		// to read from the webcam 
+		sourceType : 'webcam',
+	})
+
+	arToolkitSource.init(function onReady(){
+		onResize()
+	})
+	
+	// handle resize
+	window.addEventListener('resize', function(){
+		onResize()
+	})
+	function onResize(){
+		arToolkitSource.onResize()	
+		arToolkitSource.copySizeTo(renderer.domElement)	
+		if( arToolkitContext.arController !== null ){
+			arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+		}	
+	}
+	////////////////////////////////////////////////////////////////////////////////
+	//          initialize arToolkitContext
+	////////////////////////////////////////////////////////////////////////////////
+	
+	arToolkitContext = new THREEx.ArToolkitContext({
+		cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '/data/data/camera_para.dat',
+		detectionMode: 'mono',
+		maxDetectionRate: 30,
+		canvasWidth: 80*3,
+		canvasHeight: 60*3,
+	})
+	// initialize it
+	arToolkitContext.init(function onCompleted(){
+		// copy projection matrix to camera
+		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+	})
+
+
+	
+	markerHiro = addMarkerHiro();
+	scene.add (markerHiro); 
+	
+	
+
+	
+}
+
+	
+function addMarkerHiro(){
+	let markerRoot = new THREE.Group()
+
+	var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+		type : 'pattern',
+		patternUrl : THREEx.ArToolkitContext.baseURL + '/data/data/patt.hiro'
+	})
+
+	  //var gridXZ = new THREE.GridHelper(200, 20, 'red','white');
+	  //scene.add(gridXZ);
+
+	  ////////////////////////////////////////////////////////////////
+		var material = new THREE.MeshBasicMaterial( { color:'white',side:THREE.DoubleSide } );
+	  box = new THREE.Mesh (new THREE.BoxGeometry(120/120, 0.09/120, 80/120), material); 
+	  scene.add(box);
+
+
+
+	mode=buildmode();
+
+
+	//markerRoot.add (mesh);
+	markerRoot.add (mode);
+
+	
+	return markerRoot;
+}	
+
+function buildmode() {
+  let geometry = new THREE.Geometry();
+  geometry.vertices.push(
+    new THREE.Vector3(-60/120, 0.1/120, 40/120),
+    new THREE.Vector3(60/120, 0.1/120, 40/120),
+    new THREE.Vector3(60/120, 0.1/120, -40/120),
+    new THREE.Vector3(-60/120, 0.1/120, -40/120),
+  );
+
+
+  let face;
+  face = new THREE.Face3(0, 1, 2);
+  face.materialIndex = 0;
+  geometry.faces.push(face);
+  face = new THREE.Face3(2, 3, 0);
+  face.materialIndex = 0;
+  geometry.faces.push(face);
+  
+  
+  geometry.faceVertexUvs[0].push([new THREE.Vector2(0, 0), new THREE.Vector2(1, 0), new THREE.Vector2(1, 1)]);
+  geometry.faceVertexUvs[0].push([new THREE.Vector2(1, 1), new THREE.Vector2(0, 1), new THREE.Vector2(0, 0)]);
+
+  geometry.computeFaceNormals();
+  geometry.computeVertexNormals();
+
+  let loader = new THREE.TextureLoader();
+  loader.crossOrigin = '';
+  let texture = loader.load('https://i.imgur.com/5BfYkyS.png');
+  materialArray = [];
+  materialArray.push(new THREE.MeshBasicMaterial({
+      map: texture
+    }));
+  return new THREE.Mesh(geometry, materialArray);
+}
+
+
+
+
+function animate() {
+	requestAnimationFrame (animate);
+	stats.update();
+	
+	if( arToolkitSource.ready === false )	return
+	arToolkitContext.update( arToolkitSource.domElement )
+	//markerHiro.children[0].rotation.y += 0.1;
+	
+	renderer.render (scene, camera);	
+}
+
+
+
+</script></body>
