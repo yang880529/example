@@ -17,10 +17,8 @@
 <script>
 
 // global variables
-var renderer, scene, camera, controls;
-var stats;
-var arToolKitSource, arToolKitContext;
-var markerHiro;
+var scene, renderer, camera, controls;
+var mode;
 
 init();
 animate();
@@ -28,27 +26,15 @@ animate();
 function init() {
 
 // init renderer
-	renderer	= new THREE.WebGLRenderer({
-		// antialias	: true,
-		alpha: true
-	});
-	renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-	// renderer.setPixelRatio( 1/2 );
-	renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.domElement.style.position = 'absolute'
-	renderer.domElement.style.top = '0px'
-	renderer.domElement.style.left = '0px'
-	document.body.appendChild( renderer.domElement );
+	  scene = new THREE.Scene();
+	  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1000);
+	  camera.position.y = 200;
+	  renderer = new THREE.WebGLRenderer();
+	  renderer.setSize(window.innerWidth, window.innerHeight);
+	  renderer.setClearColor(0x888888);
 
-	stats = new Stats();
-	document.body.appendChild( stats.dom );
-
-	// init scene and camera
-	scene	= new THREE.Scene();
-	
-	// Create a BASIC camera
-	camera = new THREE.Camera();
-	scene.add(camera);
+	  document.body.appendChild(renderer.domElement);
+	  controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 	////////////////////////////////////////////////////////////////////////////////
 	//          handle arToolkitSource
@@ -109,26 +95,20 @@ function addMarkerHiro(){
 		type : 'pattern',
 		patternUrl : THREEx.ArToolkitContext.baseURL + '/data/data/patt.hiro'
 	})
-
-	  //var gridXZ = new THREE.GridHelper(200, 20, 'red','white');
-	  //scene.add(gridXZ);
-
-	  ////////////////////////////////////////////////////////////////
-		var material = new THREE.MeshBasicMaterial( { color:'white',side:THREE.DoubleSide } );
-	  box = new THREE.Mesh (new THREE.BoxGeometry(120/120, 0.09/120, 80/120), material); 
+	var material = new THREE.MeshBasicMaterial( { color:'white',side:THREE.DoubleSide } );
+	  box = new THREE.Mesh (new THREE.BoxGeometry(120, 0.09, 80), material); 
 	  scene.add(box);
 
 
 
-	mode=buildmode();
-
-
+	  mode=buildmode();
 	//markerRoot.add (mesh);
 	markerRoot.add (mode);
 
 	
 	return markerRoot;
 }	
+
 
 function buildmode() {
   let geometry = new THREE.Geometry();
@@ -166,19 +146,20 @@ function buildmode() {
 }
 
 
-
-
 function animate() {
 	requestAnimationFrame (animate);
 	stats.update();
 	
 	if( arToolkitSource.ready === false )	return
 	arToolkitContext.update( arToolkitSource.domElement )
+
 	//markerHiro.children[0].rotation.y += 0.1;
 	
 	renderer.render (scene, camera);	
 }
 
 
+// much simpler...
+// using lookAt of Object3D
 
 </script></body>
